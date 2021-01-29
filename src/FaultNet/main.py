@@ -149,4 +149,4 @@ if __name__ == "__main__":
     print("+++ Save Model +++")
     # Save model
     if save_model_path:
-        torch.save(cnn, save_model_path)                          
+        torch.save(cnn.state_dict(), save_model_path)                          
