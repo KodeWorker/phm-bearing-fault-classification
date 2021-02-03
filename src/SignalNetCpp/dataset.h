@@ -5,7 +5,7 @@
 #include <tuple>
 #include <torch/torch.h>
 #include "utils.h"
-#include "cnpy.h"
+#include "npy.hpp"
 
 class MafauldaDataset : public torch::data::Dataset<MafauldaDataset>
 {
@@ -13,7 +13,7 @@ class MafauldaDataset : public torch::data::Dataset<MafauldaDataset>
         std::vector<std::tuple<std::string /*file location*/, int64_t /*label*/>> npy_;
 	
 	public:
-		explicit CustomDataset(std::string& data_dir) : npy_(ReadNpy(data_dir)){
+		explicit MafauldaDataset(std::string& data_dir) : npy_(ReadNpy(data_dir)){
 			
 		};
 		
@@ -22,11 +22,16 @@ class MafauldaDataset : public torch::data::Dataset<MafauldaDataset>
 			std::string file_location = std::get<0>(npy_[index]);
             int64_t label = std::get<1>(npy_[index]);
 			
-			cnpy::NpyArray arr = cnpy::npy_load(file_location);
 			
-			std::cout << arr.shape[0] << "," << arr.shape[1] << "," << arr.shape[2] << std::endl;
+			std::vector<unsigned long> shape;
+			bool fortran_order;
+			std::vector<double> data;
+  
+			npy::LoadArrayFromNumpy(file_location, shape, fortran_order, data);
 			
-			torch::Tensor img_tensor = torch::from_blob(arr.data, {arr.shape[0], arr.shape[1], arr.shape[2]}, torch::kByte).clone()// read from npy
+			std::cout << shape[0] << "," << shape[1] << "," << shape[2] << std::endl;
+			
+			torch::Tensor img_tensor = torch::from_blob(data, {shape[0], shape[1], shape[2]}, torch::kByte).clone();// read from npy
 			img_tensor = img_tensor.permute({2, 0, 1}); // convert to CxHxW
 			
 			torch::Tensor label_tensor = torch::full({1}, label);
