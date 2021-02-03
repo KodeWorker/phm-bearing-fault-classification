@@ -19,7 +19,7 @@ class CNN(Module):
         
         self.conv1 = Conv2d(8, 32, kernel_size=4,stride=1,padding = 1)
         self.mp1 = MaxPool2d(kernel_size=4,stride=2)
-        self.conv2 = Conv2d(32,64, kernel_size=4,stride =1)
+        self.conv2 = Conv2d(32, 64, kernel_size=4,stride =1)
         self.mp2 = MaxPool2d(kernel_size=4,stride=2)
         self.fc1= Linear(9216,256)
         self.dp1 = Dropout(p=0.2)
