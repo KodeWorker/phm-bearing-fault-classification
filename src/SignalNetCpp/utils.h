@@ -6,13 +6,24 @@
 #include <filesystem>
 #include <sys/stat.h>
 #include <unordered_set>
+#include <algorithm>    // std::shuffle
+#include <random>       // std::default_random_engine
+#include <torch/torch.h>
 
-template< class T > std::pair<vector<T>* , vector<T>* > SplitVector(const std::vector< T >& vecIn, int nbIn)
+#include <iostream>
+float Accuracy(torch::Tensor predTensor, torch::Tensor trueTensor){
+	std::cout << predTensor.shape() << std::endl;
+	std::cout << trueTensor.shape() << std::endl;
+	return 0;
+}
+
+template< class T > 
+std::pair<std::vector<T>* , std::vector<T>* > SplitVector(const std::vector< T >& vecIn, int nbIn, unsigned seed)
 {
     auto vecC = vecIn;
-    std::random_shuffle(vecC.begin(), vecC.end());
-    auto vec1 = new vector<T>(vecC.begin(), vecC.begin() + nbIn);
-    auto vec2 = new vector<T>(vecC.begin() + nbIn, vecC.end());
+    std::shuffle(vecC.begin(), vecC.end(), std::default_random_engine(seed));
+    auto vec1 = new std::vector<T>(vecC.begin(), vecC.begin() + nbIn);
+    auto vec2 = new std::vector<T>(vecC.begin() + nbIn, vecC.end());
     return std::make_pair(vec1, vec2);
 }
 
