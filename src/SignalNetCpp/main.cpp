@@ -1,32 +1,46 @@
 #include <iostream>
 #include <string>
+#include <vector>
 #include <stdexcept>
 #include <torch/torch.h>
 #include "model.h"
-//#include "dataset.h"
+#include "dataset.h"
 #include "utils.h"
 
 int main() {
 	
 	printf("+++ SignalNet Initialized +++\n");
 	
-	std::string strDataPath = "../../../data/mafaulda";
+	std::string strDataPath = "../../../data/MAFAULDA_XX";
     std::string strSaveModelPath = "../../../data/SignalNet_demo.pth";
-    int nTrainBatchSize = 1024;
-    int nTestBatchSize = 1024;
-    int nEpochs = 25;
+    int64_t nTrainBatchSize = 1024;
+    int64_t nTestBatchSize = 1024;
+    int64_t nEpochs = 25;
     float dValRatio = 0.2;
 	
 	torch::Device device(torch::cuda::is_available() ? torch::kCUDA : torch::kCPU);
 	
 	printf("+++ Load Dataset +++\n");
 	
-	//auto data_set = MafauldaDataset(strDataPath).map(torch::data::transforms::Stack<>());
-	double array[] = { 1, 2, 3, 4, 5};
-	auto options = torch::TensorOptions().dtype(torch::kFloat64).device(torch::kCUDA, 1);
-	torch::Tensor tharray = torch::from_blob(array, {5}, options);
-	std::cout << tharray << std::endl;
+    std::vector<std::tuple<std::string /*file location*/, int64_t /*label*/>> npy = ReadNpy(strDataPath);
+    
+    int64_t nTrainSamples = (int64_t)(npy.size() * (1 - dValRatio));
+    std::cout << "nTrainSamples: " << nTrainSamples << std::endl;
+    
+    std::pair<std::vector<std::tuple<std::string /*file location*/, int64_t /*label*/>> ,
+              std::vector<std::tuple<std::string /*file location*/, int64_t /*label*/>> > npyPair = SplitVector<std::tuple<std::string /*file location*/, int64_t /*label*/>>(npy, nTrainSamples);
+    
+	auto dataset = MafauldaDataset(npy).map(torch::data::transforms::Stack<>());
+    
+    /*
+    auto data_loader = torch::data::make_data_loader(
+    std::move(dataset),
+    torch::data::DataLoaderOptions().batch_size(nTrainBatchSize).workers(2));
 
+    for (torch::data::Example<>& batch : *data_loader) {
+        std::cout << "Batch size: " << batch.data.size(0) << " | Labels: ";
+    }
+    */
 	printf("+++ Build Model +++\n");
 	
 	//SignalNet model = SignalNet();	

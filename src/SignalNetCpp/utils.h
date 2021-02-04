@@ -7,6 +7,15 @@
 #include <sys/stat.h>
 #include <unordered_set>
 
+template< class T > std::pair<vector<T>* , vector<T>* > SplitVector(const std::vector< T >& vecIn, int nbIn)
+{
+    auto vecC = vecIn;
+    std::random_shuffle(vecC.begin(), vecC.end());
+    auto vec1 = new vector<T>(vecC.begin(), vecC.begin() + nbIn);
+    auto vec2 = new vector<T>(vecC.begin() + nbIn, vecC.end());
+    return std::make_pair(vec1, vec2);
+}
+
 bool IsDirExists(const std::string &path) {
     struct stat info;
     if (stat(path.c_str(), &info) == 0 && info.st_mode & S_IFDIR) {
