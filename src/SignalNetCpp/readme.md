@@ -1,4 +1,4 @@
-cmake -DCMAKE_PREFIX_PATH=D:\code\libtorch ..
+cmake -DCMAKE_PREFIX_PATH=D:\kelvinwu\code\libtorch;D:\kelvinwu\code\poco\cmake-build ..
 cmake --build . --config Release
 
 # Refereces

@@ -1,9 +1,15 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+/*
+#include <windows.h>
+#include <tchar.h> 
+#include <stdio.h>
+#include <strsafe.h>
+#pragma comment(lib, "User32.lib")
+*/
 #include <vector>
 #include <tuple>
-#include <filesystem>
 #include <sys/stat.h>
 #include <unordered_set>
 #include <algorithm>    // std::shuffle
@@ -12,8 +18,8 @@
 
 #include <iostream>
 float Accuracy(torch::Tensor predTensor, torch::Tensor trueTensor){
-	std::cout << predTensor.shape() << std::endl;
-	std::cout << trueTensor.shape() << std::endl;
+	std::cout << predTensor.sizes() << std::endl;
+	std::cout << trueTensor.sizes() << std::endl;
 	return 0;
 }
 
@@ -47,6 +53,34 @@ auto ReadNpy(std::string& location) -> std::vector<std::tuple<std::string /*file
 	std::vector<std::string> pathVector;
 	std::vector<std::string> dirnameVector;
 	
+    std::cout << location << std::endl;
+    
+    
+    // walk directory tree
+    /*
+    WIN32_FIND_DATA ffd;
+    HANDLE hFind = INVALID_HANDLE_VALUE;
+    
+    location += "\\normal\\*";
+    
+    hFind = FindFirstFile(location.c_str(), &ffd);
+    do
+    {
+        if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        {
+         _tprintf(TEXT("  %s   <DIR>\n"), ffd.cFileName);
+        }
+        else
+        {
+         _tprintf(TEXT("  %s   \n"), ffd.cFileName);
+        }
+    }
+    while (FindNextFile(hFind, &ffd) != 0);
+ 
+    FindClose(hFind);
+    */
+    
+    /*
 	for(auto& p: std::filesystem::recursive_directory_iterator(location)) {
 		std::string path{p.path().u8string()};
 		std::string dirname{p.path().parent_path().filename().u8string()};
@@ -72,7 +106,7 @@ auto ReadNpy(std::string& location) -> std::vector<std::tuple<std::string /*file
 		int64_t label = mapLabel[dirnameVector[i]];
 		npy.push_back(std::make_tuple(path, label));
 	}
-	
+	*/
     return npy;
 }
 

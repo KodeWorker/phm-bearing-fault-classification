@@ -5,7 +5,8 @@ find_package(Torch REQUIRED)
 
 add_executable(signalnet main.cpp)
 target_link_libraries(signalnet "${TORCH_LIBRARIES}")
-set_property(TARGET signalnet PROPERTY CXX_STANDARD 17)
+
+set_property(TARGET signalnet PROPERTY CXX_STANDARD 14)
 
 # The following code block is suggested to be used on Windows.
 # According to https://github.com/pytorch/pytorch/issues/25457,
