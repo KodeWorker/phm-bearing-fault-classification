@@ -1,19 +1,13 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-/*
-#include <windows.h>
-#include <tchar.h> 
-#include <stdio.h>
-#include <strsafe.h>
-#pragma comment(lib, "User32.lib")
-*/
 #include <vector>
 #include <tuple>
 #include <sys/stat.h>
 #include <unordered_set>
 #include <algorithm>    // std::shuffle
 #include <random>       // std::default_random_engine
+#include <boost/filesystem.hpp>
 #include <torch/torch.h>
 
 #include <iostream>
@@ -57,28 +51,7 @@ auto ReadNpy(std::string& location) -> std::vector<std::tuple<std::string /*file
     
     
     // walk directory tree
-    /*
-    WIN32_FIND_DATA ffd;
-    HANDLE hFind = INVALID_HANDLE_VALUE;
     
-    location += "\\normal\\*";
-    
-    hFind = FindFirstFile(location.c_str(), &ffd);
-    do
-    {
-        if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-        {
-         _tprintf(TEXT("  %s   <DIR>\n"), ffd.cFileName);
-        }
-        else
-        {
-         _tprintf(TEXT("  %s   \n"), ffd.cFileName);
-        }
-    }
-    while (FindNextFile(hFind, &ffd) != 0);
- 
-    FindClose(hFind);
-    */
     
     /*
 	for(auto& p: std::filesystem::recursive_directory_iterator(location)) {

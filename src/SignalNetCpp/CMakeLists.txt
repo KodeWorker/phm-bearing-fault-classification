@@ -1,9 +1,16 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+
 project(signalnet)
 
 find_package(Torch REQUIRED)
+find_package( Boost 1.75.0 )
 
 add_executable(signalnet main.cpp)
+
+if(Boost_FOUND)
+     include_directories(${Boost_INCLUDE_DIRS})
+     target_link_libraries(signalnet ${Boost_LIBRARIES})
+endif()
 target_link_libraries(signalnet "${TORCH_LIBRARIES}")
 
 set_property(TARGET signalnet PROPERTY CXX_STANDARD 14)
