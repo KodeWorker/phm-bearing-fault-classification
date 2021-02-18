@@ -2,18 +2,28 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
 project(signalnet)
 
-find_package(Torch REQUIRED)
-find_package( Boost 1.75.0 )
+include_directories( ./include ./src )
 
-add_executable(signalnet main.cpp)
+set(CMAKE_PREFIX_PATH "D:/code/libtorch")
+set(BOOST_ROOT "D:/Boost")
+
+find_package( Torch REQUIRED )
+find_package( Boost 1.75.0 REQUIRED COMPONENTS filesystem)
+message(STATUS "Boost version: ${Boost_VERSION}") 
+
+add_executable(${PROJECT_NAME} src/main.cpp)
 
 if(Boost_FOUND)
-     include_directories(${Boost_INCLUDE_DIRS})
-     target_link_libraries(signalnet ${Boost_LIBRARIES})
+     include_directories(${Boost_INCLUDE_DIR})
+     message(STATUS "Boost_INCLUDE_DIR: ${Boost_INCLUDE_DIR}") 
+     target_include_directories(${PROJECT_NAME} PUBLIC ${Boost_INCLUDE_DIRS}) 
+     message(STATUS "Boost_LIBRARIES  " ${Boost_LIBRARIES}) 
+    #target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 endif()
-target_link_libraries(signalnet "${TORCH_LIBRARIES}")
 
-set_property(TARGET signalnet PROPERTY CXX_STANDARD 14)
+target_link_libraries(${PROJECT_NAME}  ${TORCH_LIBRARIES} ${Boost_LIBRARIES})
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 
 # The following code block is suggested to be used on Windows.
 # According to https://github.com/pytorch/pytorch/issues/25457,

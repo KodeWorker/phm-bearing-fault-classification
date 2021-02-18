@@ -27,7 +27,7 @@ class MafauldaDataset : public torch::data::Dataset<MafauldaDataset>
   
 			npy::LoadArrayFromNumpy(file_location, shape, fortran_order, data);
 			auto options = torch::TensorOptions().dtype(torch::kFloat64);
-            
+
 			//std::cout << shape[0] << "," << shape[1] << "," << shape[2] << std::endl;
 			
 			torch::Tensor img_tensor = torch::from_blob(data.data(), {shape[0], shape[1], shape[2]}, options).clone();// read from npy
@@ -40,7 +40,6 @@ class MafauldaDataset : public torch::data::Dataset<MafauldaDataset>
 		
 		// Override the size method to infer the size of the data set.
         torch::optional<size_t> size() const override {
-
             return npy_.size();
         };
 		
