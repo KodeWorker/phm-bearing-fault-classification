@@ -7,12 +7,37 @@
 #include <unordered_set>
 #include <algorithm>    // std::shuffle
 #include <random>       // std::default_random_engine
+#include <map>
 #include <boost/filesystem.hpp>
 #include <torch/torch.h>
+
 
 using namespace boost::filesystem;
 
 //#include <iostream>
+std::pair<std::map<int, int>, std::map<int, int>> ClassificationReport(torch::Tensor predTensor, torch::Tensor trueTensor){
+    trueTensor = trueTensor.to(torch::kLong);
+    predTensor = predTensor.to(torch::kLong);
+    
+    std::map<int, int> mapCorrectCount;
+    std::map<int, int> mapTotalCount;
+    
+    for (int i=0; i<trueTensor.numel(); i++){
+        //std::cout << trueTensor[i] << "," << predTensor[i] << std::endl;
+        
+        if(mapTotalCount.count(trueTensor[i].item<int>())==0){
+            mapTotalCount[trueTensor[i].item<int>()] = 0;
+            mapCorrectCount[trueTensor[i].item<int>()] = 0;
+        }
+        
+        mapTotalCount[trueTensor[i].item<int>()] += 1;
+        if(trueTensor[i].eq(predTensor[i]).item<int>())
+            mapCorrectCount[trueTensor[i].item<int>()] += 1;
+    }
+    
+    return std::make_pair(mapCorrectCount, mapTotalCount);
+}
+
 float Accuracy(torch::Tensor predTensor, torch::Tensor trueTensor){
     trueTensor = trueTensor.to(torch::kLong);
     predTensor = predTensor.to(torch::kLong);

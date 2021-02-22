@@ -3,6 +3,7 @@
 #include <vector>
 #include <chrono>       // std::chrono::system_clock
 #include <stdlib.h>     // atof 
+#include <map> 
 #include <torch/torch.h>
 #include <model.h>
 #include <dataset.h>
@@ -88,7 +89,17 @@ void Verify(
         
         float accuracy = Accuracy(predTensor , trueTensor);
         printf("Acc.: %.2f %%\n", accuracy * 100);
-    
+        
+        std::pair<std::map<int, int>, std::map<int, int>> reportPair= ClassificationReport(predTensor, trueTensor);
+        
+        std::map<int, int> mapCorrectCount = reportPair.first;
+        std::map<int, int> mapTotalCount = reportPair.second;
+        
+        for (auto const& x : mapCorrectCount)
+        {
+            printf(" * Category %d: %.2f %%\n", x.first, (float)(x.second) / (float)(mapTotalCount[x.first]) * 100);            
+        }
+        
     }
 
 int main(int argc, char* argv[]) {
