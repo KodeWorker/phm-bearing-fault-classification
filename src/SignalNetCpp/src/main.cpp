@@ -9,6 +9,88 @@
 #include <utils.h>
 #include <SimpleIni.h>
 
+template <typename DataLoader>
+void Train(
+    size_t nEpochs,
+    SignalNet& model,
+    torch::Device device,
+    DataLoader& data_loader,
+    torch::optim::Optimizer& optimizer,
+    torch::nn::CrossEntropyLoss& criterion,
+    size_t nTrainSamples){
+        
+        printf("+++ Train Model +++\n");
+        
+        for (size_t epoch = 1; epoch <= nEpochs; ++epoch) {
+            size_t batch_idx = 0;
+            //model.train();
+            for (torch::data::Example<>& batch : data_loader) {
+                
+                auto features = batch.data.to(torch::kFloat32).to(device);
+                auto labels = batch.target.to(torch::kLong).to(device);
+                optimizer.zero_grad();
+                auto output = model(features);
+                labels = torch::squeeze(labels, 1);
+                auto loss = criterion(output, labels);
+                loss.backward();
+                optimizer.step();
+                
+                // monitor training phase			
+                auto outputTuple = torch::max(output, 1);
+                float accuracy = Accuracy(std::get<1>(outputTuple) , labels);
+                
+                printf("\rTrain Epoch: %lld/%lld [%5zd / %5zd] Loss: %.4f Acc.: %.2f %%", 
+                       epoch,
+                       nEpochs,
+                       ++batch_idx * batch.data.size(0),
+                       nTrainSamples,
+                       loss.template item<float>(),
+                       accuracy * 100);
+            }
+        }
+        printf("\n");
+        
+    }
+
+template <typename DataLoader>
+void Verify(
+    SignalNet& model,
+    torch::Device device,
+    DataLoader& data_loader){
+        
+        printf("+++ Verify Model +++\n");    
+        //model.eval();
+        
+        torch::Tensor predTensor;
+        torch::Tensor trueTensor;
+        bool isInitialized = false;
+    
+        for (torch::data::Example<>& batch : data_loader) {
+            
+            auto features = batch.data.to(torch::kFloat32).to(device);
+            auto labels = batch.target.to(torch::kLong).to(device);
+            labels = torch::squeeze(labels, 1);
+            
+            auto output = model(features);
+            auto outputTuple = torch::max(output, 1);
+            auto preds = std::get<1>(outputTuple);
+           
+            if(!isInitialized){
+                predTensor = preds;
+                trueTensor = labels;
+                isInitialized = true;
+            }else{
+                predTensor = torch::cat({predTensor, preds}, 0);
+                trueTensor = torch::cat({trueTensor, labels}, 0);
+            }
+            
+        }
+        
+        float accuracy = Accuracy(predTensor , trueTensor);
+        printf("Acc.: %.2f %%\n", accuracy * 100);
+    
+    }
+
 int main(int argc, char* argv[]) {
 	
     const char* charConfigPath;
@@ -43,7 +125,8 @@ int main(int argc, char* argv[]) {
     const float dValRatio = atof(ini.GetValue("Dataset", "ValRatio", "0.2"));
     const size_t nTrainBatchSize = atoi(ini.GetValue("Dataset", "TrainBatchSize", "512"));
     const size_t nTestBatchSize = atoi(ini.GetValue("Dataset", "TestBatchSize", "512"));
-    const size_t nWorkers = atoi(ini.GetValue("Dataset", "Workers", "2"));    
+    const size_t nWorkers = atoi(ini.GetValue("Dataset", "Workers", "2"));
+    int bIsTraining = atoi(ini.GetValue("Model", "IsTraining", "1"));
     const size_t nEpochs = atoi(ini.GetValue("Model", "Epochs", "25"));
     const float dLearningRate = atof(ini.GetValue("Model", "LearningRate", "1e-3"));
     const int64_t nModelChannels = atoi(ini.GetValue("Model", "Channels", "8"));
@@ -101,71 +184,19 @@ int main(int argc, char* argv[]) {
 	SignalNet model(nModelChannels, nModelHeight, nModelWidth);
     model->to(device);
     
-	torch::optim::Adam optimizer(model->parameters(), torch::optim::AdamOptions(dLearningRate));
+    torch::optim::Adam optimizer(model->parameters(), torch::optim::AdamOptions(dLearningRate));
 	torch::nn::CrossEntropyLoss criterion;
-	
-    for (size_t epoch = 1; epoch <= nEpochs; ++epoch) {
-		size_t batch_idx = 0;
-        model->train();
-        for (torch::data::Example<>& batch : *trainDataLoader) {
-            
-            auto features = batch.data.to(torch::kFloat32).to(device);
-            auto labels = batch.target.to(torch::kLong).to(device);
-            optimizer.zero_grad();
-			auto output = model->forward(features);
-            labels = torch::squeeze(labels, 1);
-			auto loss = criterion(output, labels);
-            loss.backward();
-            optimizer.step();
-            
-            // monitor training phase			
-			auto outputTuple = torch::max(output, 1);
-            float accuracy = Accuracy(std::get<1>(outputTuple) , labels);
-            
-            printf("\rTrain Epoch: %lld/%lld [%5zd / %5zd] Loss: %.4f Acc.: %.2f %%", 
-				   epoch,
-				   nEpochs,
-				   ++batch_idx * batch.data.size(0),
-				   nTrainSamples,
-				   loss.template item<float>(),
-				   accuracy * 100);
-		}
-	}
-    printf("\n");
     
-    printf("+++ Verify Model +++\n");    
-    model->eval();
-    
-    torch::Tensor predTensor;
-    torch::Tensor trueTensor;
-    bool isInitialized = false;
-    
-	for (torch::data::Example<>& batch : *testDataLoader) {
-        
-        auto features = batch.data.to(torch::kFloat32).to(device);
-        auto labels = batch.target.to(torch::kLong).to(device);
-        labels = torch::squeeze(labels, 1);
-        
-        auto output = model->forward(features);
-        auto outputTuple = torch::max(output, 1);
-        auto preds = std::get<1>(outputTuple);
-       
-        if(!isInitialized){
-            predTensor = preds;
-            trueTensor = labels;
-            isInitialized = true;
-        }else{
-            predTensor = torch::cat({predTensor, preds}, 0);
-            trueTensor = torch::cat({trueTensor, labels}, 0);
-        }
-        
+    if(bIsTraining){
+        Train(nEpochs, model, device, *trainDataLoader, optimizer, criterion, nTrainSamples);
+        Verify(model, device, *testDataLoader);
+        printf("+++ Save Model +++\n");
+        torch::save(model, strSaveModelPath);
+    }else{
+        printf("+++ Load Model +++\n");
+        torch::load(model, strSaveModelPath);
+        Verify(model, device, *testDataLoader);
     }
-    
-	float accuracy = Accuracy(predTensor , trueTensor);
-    printf("Acc.: %.2f %%\n", accuracy * 100);
-    
-    printf("+++ Save Model +++\n");
-    torch::save(model, strSaveModelPath);
     
 	printf("+++ Done +++\n");
     
