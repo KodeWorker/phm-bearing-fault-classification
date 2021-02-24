@@ -2,6 +2,7 @@
 
 # Project Structure
 
+```
 .
 +-- doc/
 +-- src/
@@ -11,5 +12,6 @@
 +-- .gitignore
 +-- readme.md
 +-- runFaultNet.bat
+```
 
 # References
