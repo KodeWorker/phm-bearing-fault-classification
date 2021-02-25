@@ -1,4 +1,5 @@
 # SignalNet
+Simplied FaultNet implementation without using additional features
 
 # Project Structure
 
