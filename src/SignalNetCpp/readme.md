@@ -1,6 +1,7 @@
 # SignalNet C++ Implementation
-This is C++ implementation of SignalNet using Libtorch
-The classification accuracy is around 99% on Mafaulda dataset (generated npy from python implementation)
+This is C++ implementation of SignalNet using Libtorch.
+
+The classification accuracy is around 99% on Mafaulda dataset (generated npy from python implementation).
 
 # Project Structure
 ```

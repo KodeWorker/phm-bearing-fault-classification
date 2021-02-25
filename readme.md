@@ -1,5 +1,5 @@
 # PHM Bearning Fault Classification
-This repository contains multiple implementations of bearing fault classification
+This repository contains multiple implementations of bearing fault classification.
 
 - FaultNet:
 - SignalNet: Simplified version of FaultNet (w/o extra features)
