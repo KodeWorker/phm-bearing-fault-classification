@@ -1,7 +1,7 @@
 # PHM Bearning Fault Classification
 This repository contains multiple implementations of bearing fault classification.
 
-- FaultNet:
+- FaultNet: another implementation of FaultNet according to official Github [repository](https://github.com/joshuadickey/FaultNet)
 - SignalNet: Simplified version of FaultNet (w/o extra features)
 - SignalNetCpp: C++ implementation of SignalNet using libtorch
 
