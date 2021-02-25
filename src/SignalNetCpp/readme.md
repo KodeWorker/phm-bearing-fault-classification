@@ -1,6 +1,27 @@
-cmake -G"Visual Studio 16 2019"  ..
+# SignalNet C++ Implementation
+This is C++ implementation of SignalNet using Libtorch
 
+# Project Structure
+
+# Instructions
+
+## Dependencies
+- Libtorch
+- Boost C++ Library
+
+## Build executable
+W
+```
+mkdir build
+cd build
+cmake -G"Visual Studio 16 2019"  ..
 cmake --build . --config Release
+```
+
+## Run executable
+```
+Release\signalnet.exe -c ../config.ini
+```
 
 # Refereces
 - https://pytorch.org/tutorials/advanced/cpp_frontend.html

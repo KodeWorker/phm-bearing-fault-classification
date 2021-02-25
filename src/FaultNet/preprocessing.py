@@ -2,6 +2,19 @@ import os
 import glob
 import numpy as np
 from scipy.io import loadmat
+from argparse import ArgumentParser
+
+def build_argparser():
+
+    parser = ArgumentParser()
+    
+    parser.add_argument("--data_dir", help="path to CWRU data folder", required=True, type=str)
+    parser.add_argument("--output_dir", help="path to save output *.npy", required=True, type=str)
+    parser.add_argument("--n_samples", help="num of samples", default=280, type=int)
+    parser.add_argument("--n_segment_datapoints", help="num of datapoints in a sample", default=1670, type=int)
+    parser.add_argument("--n_ignore_datapoints", help="num of ignored datapoints", default=35, type=int)
+    
+    return parser
 
 def ignore_noise(array, n_segments, n_ignore):
     denoised = []
@@ -39,12 +52,21 @@ def get_label(filename):
 
 if __name__ == "__main__":
     
+    """
     n_samples = 280
     n_segment_datapoints = 1670
     n_ignore_datapoints = 35
     
     data_dir = "../../data/CWRU"
     output_dir = "../../data/CWRU"
+    """
+    args = build_argparser().parse_args()
+    n_samples = args.n_samples
+    n_segment_datapoints = args.n_segment_datapoints
+    n_ignore_datapoints = args.n_ignore_datapoints
+    
+    data_dir = args.data_dir
+    output_dir = args.output_dir
     
     filenames = glob.glob(os.path.join(data_dir, "*.mat"))
     #print(filenames)
