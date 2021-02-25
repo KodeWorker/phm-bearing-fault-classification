@@ -2,10 +2,27 @@ import os
 import glob
 import pandas as pd
 
+from argparse import ArgumentParser
+
+def build_argparser():
+
+    parser = ArgumentParser()
+    
+    parser.add_argument("--data_path", help="path to Mafauldda dataset folder", required=True, type=str)
+    parser.add_argument("--output_dir", help="path to output directory", default=None, type=str)
+    parser.add_argument("--n_segments", help="num of segments", default=4096, type=int)
+    
+    return parser
+
 if __name__ == "__main__":
     
-    data_dir = "../../data/MAFAULDA"
-    output_dir = "../../data/MAFAULDA_X"
+    args = build_argparser().parse_args()
+    
+    #data_dir = "../../data/MAFAULDA"
+    #output_dir = "../../data/MAFAULDA_X"
+    data_dir = args.data_dir
+    output_dir = args.output_dir
+    
     _classes = ["normal",
                 "imbalance",
                 "horizontal-misalignment",
@@ -13,7 +30,8 @@ if __name__ == "__main__":
                 "underhang",
                 "overhang"]
     
-    n_segments = 4096
+    #n_segments = 4096
+    n_segments = args.n_segments
     
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)

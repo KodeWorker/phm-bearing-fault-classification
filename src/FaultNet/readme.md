@@ -16,7 +16,7 @@ The classification accuracy is 98%, which is similar to the paper results(95~08%
 
 - feature.py: contains three features(mean, median, original signal)
 - main.py:: training/validation flow
-- model.py: model class
+- model.py: model implementation
 +-- preprocessing.py: independent data preprocessing flow
 +-- runFaultNet.bat: batch file for running training/validation flow
 +-- runPreprocessing.bat: batch file for running data preprocessing flow
@@ -27,6 +27,7 @@ The classification accuracy is 98%, which is similar to the paper results(95~08%
 ```
 conda create --name pytorch-1.7.1-cuda-10.1 python=3.8
 conda activate pytorch-1.7.1-cuda-10.1
+pip install -r requirements.txt
 ```
 3. Install corresponding PyTorch version
 ```

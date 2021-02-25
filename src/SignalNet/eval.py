@@ -6,21 +6,41 @@ from dataset import DatasetFolder, npy_loader
 
 from torch.nn import CrossEntropyLoss
 import numpy as np
+from argparse import ArgumentParser
 
+def build_argparser():
+
+    parser = ArgumentParser()
+    
+    parser.add_argument("--data_path", help="path to dataset *.npy", required=True, type=str)
+    parser.add_argument("--save_model_path", help="path to saved model", default=None, type=str)
+    parser.add_argument("--test_batch_size", help="num of testing batch size", default=1024, type=int)
+    parser.add_argument("--val_ratio", help="validation data size to training data size ratio", default=0.2, type=float)
+    parser.add_argument("--random_state", help="num of random_state", default=777, type=int)
+    
+    return parser
+    
 if __name__ == "__main__":
     
     print("+++ SignalNet Initialized +++")
     
-    data_path = "../../data/MAFAULDA_XX"
-    save_model_path = "../../data/SignalNet_demo.pth"
-    train_batch_size = 1024
-    test_batch_size = 1024
-    val_ratio = 0.2
+    #data_path = "../../data/MAFAULDA_XX"
+    #save_model_path = "../../data/SignalNet_demo.pth"
+    #test_batch_size = 1024
+    #val_ratio = 0.2
+    
+    args = build_argparser().parse_args()
+    
+    data_path = args.data_path
+    save_model_path = args.save_model_path
+    test_batch_size = args.test_batch_size
+    val_ratio = args.val_ratio
     
     assert os.path.exists(data_path)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
-    random_state = 777
+    #random_state = 777
+    random_state = args.random_state
     torch.manual_seed(random_state)
     np.random.seed(random_state)
     torch.backends.cudnn.deterministic = True
@@ -33,7 +53,6 @@ if __name__ == "__main__":
               )
     train_set, test_set = torch.utils.data.random_split(dataset, [len(dataset) - int(len(dataset)*val_ratio), int(len(dataset)*val_ratio)])
     
-    train_loader = torch.utils.data.DataLoader(train_set, batch_size=train_batch_size, shuffle=True)
     test_loader = torch.utils.data.DataLoader(test_set, batch_size=test_batch_size, shuffle=False)
     
     print("+++ Build Model +++")

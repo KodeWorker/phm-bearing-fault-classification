@@ -5,17 +5,40 @@ from model import CNN
 from dataset import DatasetFolder, npy_loader
 
 from torch.nn import CrossEntropyLoss
+from argparse import ArgumentParser
+
+def build_argparser():
+
+    parser = ArgumentParser()
+    
+    parser.add_argument("--data_path", help="path to dataset *.npy", required=True, type=str)
+    parser.add_argument("--save_model_path", help="path to saved model", default=None, type=str)
+    parser.add_argument("--train_batch_size", help="num of training batch size", default=1024, type=int)
+    parser.add_argument("--test_batch_size", help="num of testing batch size", default=1024, type=int)
+    parser.add_argument("--num_epochs", help="num of training epochs", default=25, type=int)
+    parser.add_argument("--val_ratio", help="validation data size to training data size ratio", default=0.2, type=float)
+    parser.add_argument("--random_state", help="num of random_state", default=777, type=int)
+    
+    return parser
 
 if __name__ == "__main__":
     
     print("+++ SignalNet Initialized +++")
     
-    data_path = "../../data/MAFAULDA_XX"
-    save_model_path = "../../data/SignalNet_demo.pth"
-    train_batch_size = 1024
-    test_batch_size = 1024
-    num_epochs = 25
-    val_ratio = 0.2
+    args = build_argparser().parse_args()
+    #data_path = "../../data/MAFAULDA_XX"
+    #save_model_path = "../../data/SignalNet_demo.pth"
+    #train_batch_size = 1024
+    #test_batch_size = 1024
+    #num_epochs = 25
+    #val_ratio = 0.2
+    
+    data_path = args.data_path
+    save_model_path = args.save_model_path
+    train_batch_size = args.train_batch_size
+    test_batch_size = args.test_batch_size
+    num_epochs = args.num_epochs
+    val_ratio = args.val_ratio
     
     assert os.path.exists(data_path)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -23,7 +46,8 @@ if __name__ == "__main__":
     # fix results: test accuracy 98.04% for CWRU
     # fix results: test accuracy 100% for MAFAULDA_LITE
     
-    random_state = 777
+    #random_state = 777
+    random_state = args.random_state
     torch.manual_seed(random_state)
     np.random.seed(random_state)
     torch.backends.cudnn.deterministic = True

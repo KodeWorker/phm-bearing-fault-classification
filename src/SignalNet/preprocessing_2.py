@@ -3,11 +3,25 @@ import glob
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+from argparse import ArgumentParser
+
+def build_argparser():
+
+    parser = ArgumentParser()
+    
+    parser.add_argument("--data_path", help="path to Mafauldda dataset folder", required=True, type=str)
+    parser.add_argument("--output_dir", help="path to output directory", default=None, type=str)
+    
+    return parser
 
 if __name__ == "__main__":
     
-    data_dir = "../../data/MAFAULDA_X"
-    output_dir = "../../data/MAFAULDA_XX"
+    args = build_argparser().parse_args()
+    
+    #data_dir = "../../data/MAFAULDA_X"
+    #output_dir = "../../data/MAFAULDA_XX"
+    data_dir = args.data_dir
+    output_dir = args.output_dir
     
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
